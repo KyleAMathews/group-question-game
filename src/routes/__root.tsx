@@ -20,10 +20,31 @@ export const Route = createRootRoute({
         content: `width=device-width, initial-scale=1`,
       },
       {
-        title: `TanStack Start/DB/Electric Starter`,
+        title: `BuzzIn - Family Trivia`,
+      },
+      {
+        name: `description`,
+        content: `Real-time synchronized trivia game for family game nights`,
+      },
+      {
+        name: `theme-color`,
+        content: `#9B5DE5`,
       },
     ],
     links: [
+      {
+        rel: `preconnect`,
+        href: `https://fonts.googleapis.com`,
+      },
+      {
+        rel: `preconnect`,
+        href: `https://fonts.gstatic.com`,
+        crossOrigin: `anonymous`,
+      },
+      {
+        rel: `stylesheet`,
+        href: `https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap`,
+      },
       {
         rel: `stylesheet`,
         href: appCss,
@@ -45,7 +66,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <head>
         <HeadContent />
       </head>
-      <body>
+      <body className="min-h-screen">
         {children}
         <Scripts />
       </body>

@@ -1,5 +1,4 @@
-version: "3.3"
-name: "tanstack-start-db-electric-starter"
+name: "buzzin"
 
 services:
   postgres:

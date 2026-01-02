@@ -7,16 +7,20 @@ import tailwindcss from "@tailwindcss/vite"
 import { nitro } from "nitro/vite"
 import { caddyPlugin } from "./src/vite-plugin-caddy"
 
-// Use aws-lambda preset for SST deployments (CI), otherwise use default for local dev
-const nitroPreset = process.env.CI ? `aws-lambda` : undefined
+// Use cloudflare-pages preset for production deployments, otherwise use default for local dev
+const nitroPreset = process.env.CF_PAGES ? `cloudflare-pages` : undefined
 
 const config = defineConfig({
   plugins: [
     devtools(),
     nitro({
       preset: nitroPreset,
-      awsLambda: {
-        streaming: true,
+      cloudflare: {
+        pages: {
+          routes: {
+            exclude: [`/assets/*`],
+          },
+        },
       },
     }),
     viteTsConfigPaths({
@@ -31,7 +35,7 @@ const config = defineConfig({
     exclude: [`@tanstack/start-server-core`],
   },
   ssr: {
-    noExternal: [`zod`],
+    noExternal: [`zod`, `drizzle-orm`],
   },
 })
 

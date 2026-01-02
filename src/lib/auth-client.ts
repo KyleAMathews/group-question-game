@@ -25,3 +25,10 @@ export const authClient = createAuthClient({
       ? window.location.origin // Always use current domain in browser
       : undefined, // Let better-auth handle server-side baseURL detection
 })
+
+// Sign in with Google OAuth
+export const signInWithGoogle = () =>
+  authClient.signIn.social({ provider: `google` })
+
+// Sign out
+export const signOut = () => authClient.signOut()

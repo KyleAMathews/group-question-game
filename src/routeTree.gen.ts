@@ -8,227 +8,458 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from "./routes/__root"
-import { Route as LoginRouteImport } from "./routes/login"
-import { Route as AuthenticatedRouteImport } from "./routes/_authenticated"
-import { Route as AuthenticatedIndexRouteImport } from "./routes/_authenticated/index"
-import { Route as ApiUsersRouteImport } from "./routes/api/users"
-import { Route as ApiTodosRouteImport } from "./routes/api/todos"
-import { Route as ApiProjectsRouteImport } from "./routes/api/projects"
-import { Route as ApiTrpcSplatRouteImport } from "./routes/api/trpc/$"
-import { Route as ApiAuthSplatRouteImport } from "./routes/api/auth/$"
-import { Route as AuthenticatedProjectProjectIdRouteImport } from "./routes/_authenticated/project/$projectId"
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as GameSlugRouteImport } from './routes/game/$slug'
+import { Route as ApiUsersRouteImport } from './routes/api/users'
+import { Route as ApiUsedQuestionsRouteImport } from './routes/api/used-questions'
+import { Route as ApiSessionsRouteImport } from './routes/api/sessions'
+import { Route as ApiResponsesRouteImport } from './routes/api/responses'
+import { Route as ApiQuestionsRouteImport } from './routes/api/questions'
+import { Route as ApiQuestionBanksRouteImport } from './routes/api/question-banks'
+import { Route as ApiPlayersRouteImport } from './routes/api/players'
+import { Route as ApiAnswerOptionsRouteImport } from './routes/api/answer-options'
+import { Route as AdminSessionsIndexRouteImport } from './routes/admin/sessions/index'
+import { Route as AdminBanksIndexRouteImport } from './routes/admin/banks/index'
+import { Route as ApiTrpcSplatRouteImport } from './routes/api/trpc/$'
+import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as AdminSessionsNewRouteImport } from './routes/admin/sessions/new'
+import { Route as AdminSessionsSessionIdRouteImport } from './routes/admin/sessions/$sessionId'
+import { Route as AdminBanksBankIdRouteImport } from './routes/admin/banks/$bankId'
 
 const LoginRoute = LoginRouteImport.update({
-  id: "/login",
-  path: "/login",
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedRoute = AuthenticatedRouteImport.update({
-  id: "/_authenticated",
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
-  id: "/",
-  path: "/",
-  getParentRoute: () => AuthenticatedRoute,
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const GameSlugRoute = GameSlugRouteImport.update({
+  id: '/game/$slug',
+  path: '/game/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ApiUsersRoute = ApiUsersRouteImport.update({
-  id: "/api/users",
-  path: "/api/users",
+  id: '/api/users',
+  path: '/api/users',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiTodosRoute = ApiTodosRouteImport.update({
-  id: "/api/todos",
-  path: "/api/todos",
+const ApiUsedQuestionsRoute = ApiUsedQuestionsRouteImport.update({
+  id: '/api/used-questions',
+  path: '/api/used-questions',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiProjectsRoute = ApiProjectsRouteImport.update({
-  id: "/api/projects",
-  path: "/api/projects",
+const ApiSessionsRoute = ApiSessionsRouteImport.update({
+  id: '/api/sessions',
+  path: '/api/sessions',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ApiResponsesRoute = ApiResponsesRouteImport.update({
+  id: '/api/responses',
+  path: '/api/responses',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiQuestionsRoute = ApiQuestionsRouteImport.update({
+  id: '/api/questions',
+  path: '/api/questions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiQuestionBanksRoute = ApiQuestionBanksRouteImport.update({
+  id: '/api/question-banks',
+  path: '/api/question-banks',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPlayersRoute = ApiPlayersRouteImport.update({
+  id: '/api/players',
+  path: '/api/players',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAnswerOptionsRoute = ApiAnswerOptionsRouteImport.update({
+  id: '/api/answer-options',
+  path: '/api/answer-options',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminSessionsIndexRoute = AdminSessionsIndexRouteImport.update({
+  id: '/sessions/',
+  path: '/sessions/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminBanksIndexRoute = AdminBanksIndexRouteImport.update({
+  id: '/banks/',
+  path: '/banks/',
+  getParentRoute: () => AdminRoute,
 } as any)
 const ApiTrpcSplatRoute = ApiTrpcSplatRouteImport.update({
-  id: "/api/trpc/$",
-  path: "/api/trpc/$",
+  id: '/api/trpc/$',
+  path: '/api/trpc/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
-  id: "/api/auth/$",
-  path: "/api/auth/$",
+  id: '/api/auth/$',
+  path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedProjectProjectIdRoute =
-  AuthenticatedProjectProjectIdRouteImport.update({
-    id: "/project/$projectId",
-    path: "/project/$projectId",
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
+const AdminSessionsNewRoute = AdminSessionsNewRouteImport.update({
+  id: '/sessions/new',
+  path: '/sessions/new',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSessionsSessionIdRoute = AdminSessionsSessionIdRouteImport.update({
+  id: '/sessions/$sessionId',
+  path: '/sessions/$sessionId',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminBanksBankIdRoute = AdminBanksBankIdRouteImport.update({
+  id: '/banks/$bankId',
+  path: '/banks/$bankId',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
-  "/login": typeof LoginRoute
-  "/api/projects": typeof ApiProjectsRoute
-  "/api/todos": typeof ApiTodosRoute
-  "/api/users": typeof ApiUsersRoute
-  "/": typeof AuthenticatedIndexRoute
-  "/project/$projectId": typeof AuthenticatedProjectProjectIdRoute
-  "/api/auth/$": typeof ApiAuthSplatRoute
-  "/api/trpc/$": typeof ApiTrpcSplatRoute
+  '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/login': typeof LoginRoute
+  '/api/answer-options': typeof ApiAnswerOptionsRoute
+  '/api/players': typeof ApiPlayersRoute
+  '/api/question-banks': typeof ApiQuestionBanksRoute
+  '/api/questions': typeof ApiQuestionsRoute
+  '/api/responses': typeof ApiResponsesRoute
+  '/api/sessions': typeof ApiSessionsRoute
+  '/api/used-questions': typeof ApiUsedQuestionsRoute
+  '/api/users': typeof ApiUsersRoute
+  '/game/$slug': typeof GameSlugRoute
+  '/admin/': typeof AdminIndexRoute
+  '/admin/banks/$bankId': typeof AdminBanksBankIdRoute
+  '/admin/sessions/$sessionId': typeof AdminSessionsSessionIdRoute
+  '/admin/sessions/new': typeof AdminSessionsNewRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/trpc/$': typeof ApiTrpcSplatRoute
+  '/admin/banks': typeof AdminBanksIndexRoute
+  '/admin/sessions': typeof AdminSessionsIndexRoute
 }
 export interface FileRoutesByTo {
-  "/login": typeof LoginRoute
-  "/api/projects": typeof ApiProjectsRoute
-  "/api/todos": typeof ApiTodosRoute
-  "/api/users": typeof ApiUsersRoute
-  "/": typeof AuthenticatedIndexRoute
-  "/project/$projectId": typeof AuthenticatedProjectProjectIdRoute
-  "/api/auth/$": typeof ApiAuthSplatRoute
-  "/api/trpc/$": typeof ApiTrpcSplatRoute
+  '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/api/answer-options': typeof ApiAnswerOptionsRoute
+  '/api/players': typeof ApiPlayersRoute
+  '/api/question-banks': typeof ApiQuestionBanksRoute
+  '/api/questions': typeof ApiQuestionsRoute
+  '/api/responses': typeof ApiResponsesRoute
+  '/api/sessions': typeof ApiSessionsRoute
+  '/api/used-questions': typeof ApiUsedQuestionsRoute
+  '/api/users': typeof ApiUsersRoute
+  '/game/$slug': typeof GameSlugRoute
+  '/admin': typeof AdminIndexRoute
+  '/admin/banks/$bankId': typeof AdminBanksBankIdRoute
+  '/admin/sessions/$sessionId': typeof AdminSessionsSessionIdRoute
+  '/admin/sessions/new': typeof AdminSessionsNewRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/trpc/$': typeof ApiTrpcSplatRoute
+  '/admin/banks': typeof AdminBanksIndexRoute
+  '/admin/sessions': typeof AdminSessionsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  "/_authenticated": typeof AuthenticatedRouteWithChildren
-  "/login": typeof LoginRoute
-  "/api/projects": typeof ApiProjectsRoute
-  "/api/todos": typeof ApiTodosRoute
-  "/api/users": typeof ApiUsersRoute
-  "/_authenticated/": typeof AuthenticatedIndexRoute
-  "/_authenticated/project/$projectId": typeof AuthenticatedProjectProjectIdRoute
-  "/api/auth/$": typeof ApiAuthSplatRoute
-  "/api/trpc/$": typeof ApiTrpcSplatRoute
+  '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/login': typeof LoginRoute
+  '/api/answer-options': typeof ApiAnswerOptionsRoute
+  '/api/players': typeof ApiPlayersRoute
+  '/api/question-banks': typeof ApiQuestionBanksRoute
+  '/api/questions': typeof ApiQuestionsRoute
+  '/api/responses': typeof ApiResponsesRoute
+  '/api/sessions': typeof ApiSessionsRoute
+  '/api/used-questions': typeof ApiUsedQuestionsRoute
+  '/api/users': typeof ApiUsersRoute
+  '/game/$slug': typeof GameSlugRoute
+  '/admin/': typeof AdminIndexRoute
+  '/admin/banks/$bankId': typeof AdminBanksBankIdRoute
+  '/admin/sessions/$sessionId': typeof AdminSessionsSessionIdRoute
+  '/admin/sessions/new': typeof AdminSessionsNewRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/trpc/$': typeof ApiTrpcSplatRoute
+  '/admin/banks/': typeof AdminBanksIndexRoute
+  '/admin/sessions/': typeof AdminSessionsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | "/login"
-    | "/api/projects"
-    | "/api/todos"
-    | "/api/users"
-    | "/"
-    | "/project/$projectId"
-    | "/api/auth/$"
-    | "/api/trpc/$"
+    | '/'
+    | '/admin'
+    | '/login'
+    | '/api/answer-options'
+    | '/api/players'
+    | '/api/question-banks'
+    | '/api/questions'
+    | '/api/responses'
+    | '/api/sessions'
+    | '/api/used-questions'
+    | '/api/users'
+    | '/game/$slug'
+    | '/admin/'
+    | '/admin/banks/$bankId'
+    | '/admin/sessions/$sessionId'
+    | '/admin/sessions/new'
+    | '/api/auth/$'
+    | '/api/trpc/$'
+    | '/admin/banks'
+    | '/admin/sessions'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | "/login"
-    | "/api/projects"
-    | "/api/todos"
-    | "/api/users"
-    | "/"
-    | "/project/$projectId"
-    | "/api/auth/$"
-    | "/api/trpc/$"
+    | '/'
+    | '/login'
+    | '/api/answer-options'
+    | '/api/players'
+    | '/api/question-banks'
+    | '/api/questions'
+    | '/api/responses'
+    | '/api/sessions'
+    | '/api/used-questions'
+    | '/api/users'
+    | '/game/$slug'
+    | '/admin'
+    | '/admin/banks/$bankId'
+    | '/admin/sessions/$sessionId'
+    | '/admin/sessions/new'
+    | '/api/auth/$'
+    | '/api/trpc/$'
+    | '/admin/banks'
+    | '/admin/sessions'
   id:
-    | "__root__"
-    | "/_authenticated"
-    | "/login"
-    | "/api/projects"
-    | "/api/todos"
-    | "/api/users"
-    | "/_authenticated/"
-    | "/_authenticated/project/$projectId"
-    | "/api/auth/$"
-    | "/api/trpc/$"
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/login'
+    | '/api/answer-options'
+    | '/api/players'
+    | '/api/question-banks'
+    | '/api/questions'
+    | '/api/responses'
+    | '/api/sessions'
+    | '/api/used-questions'
+    | '/api/users'
+    | '/game/$slug'
+    | '/admin/'
+    | '/admin/banks/$bankId'
+    | '/admin/sessions/$sessionId'
+    | '/admin/sessions/new'
+    | '/api/auth/$'
+    | '/api/trpc/$'
+    | '/admin/banks/'
+    | '/admin/sessions/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRouteWithChildren
   LoginRoute: typeof LoginRoute
-  ApiProjectsRoute: typeof ApiProjectsRoute
-  ApiTodosRoute: typeof ApiTodosRoute
+  ApiAnswerOptionsRoute: typeof ApiAnswerOptionsRoute
+  ApiPlayersRoute: typeof ApiPlayersRoute
+  ApiQuestionBanksRoute: typeof ApiQuestionBanksRoute
+  ApiQuestionsRoute: typeof ApiQuestionsRoute
+  ApiResponsesRoute: typeof ApiResponsesRoute
+  ApiSessionsRoute: typeof ApiSessionsRoute
+  ApiUsedQuestionsRoute: typeof ApiUsedQuestionsRoute
   ApiUsersRoute: typeof ApiUsersRoute
+  GameSlugRoute: typeof GameSlugRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiTrpcSplatRoute: typeof ApiTrpcSplatRoute
 }
 
-declare module "@tanstack/react-router" {
+declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    "/login": {
-      id: "/login"
-      path: "/login"
-      fullPath: "/login"
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    "/_authenticated": {
-      id: "/_authenticated"
-      path: ""
-      fullPath: ""
-      preLoaderRoute: typeof AuthenticatedRouteImport
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
-    "/_authenticated/": {
-      id: "/_authenticated/"
-      path: "/"
-      fullPath: "/"
-      preLoaderRoute: typeof AuthenticatedIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    "/api/users": {
-      id: "/api/users"
-      path: "/api/users"
-      fullPath: "/api/users"
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/game/$slug': {
+      id: '/game/$slug'
+      path: '/game/$slug'
+      fullPath: '/game/$slug'
+      preLoaderRoute: typeof GameSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/users': {
+      id: '/api/users'
+      path: '/api/users'
+      fullPath: '/api/users'
       preLoaderRoute: typeof ApiUsersRouteImport
       parentRoute: typeof rootRouteImport
     }
-    "/api/todos": {
-      id: "/api/todos"
-      path: "/api/todos"
-      fullPath: "/api/todos"
-      preLoaderRoute: typeof ApiTodosRouteImport
+    '/api/used-questions': {
+      id: '/api/used-questions'
+      path: '/api/used-questions'
+      fullPath: '/api/used-questions'
+      preLoaderRoute: typeof ApiUsedQuestionsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    "/api/projects": {
-      id: "/api/projects"
-      path: "/api/projects"
-      fullPath: "/api/projects"
-      preLoaderRoute: typeof ApiProjectsRouteImport
+    '/api/sessions': {
+      id: '/api/sessions'
+      path: '/api/sessions'
+      fullPath: '/api/sessions'
+      preLoaderRoute: typeof ApiSessionsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    "/api/trpc/$": {
-      id: "/api/trpc/$"
-      path: "/api/trpc/$"
-      fullPath: "/api/trpc/$"
+    '/api/responses': {
+      id: '/api/responses'
+      path: '/api/responses'
+      fullPath: '/api/responses'
+      preLoaderRoute: typeof ApiResponsesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/questions': {
+      id: '/api/questions'
+      path: '/api/questions'
+      fullPath: '/api/questions'
+      preLoaderRoute: typeof ApiQuestionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/question-banks': {
+      id: '/api/question-banks'
+      path: '/api/question-banks'
+      fullPath: '/api/question-banks'
+      preLoaderRoute: typeof ApiQuestionBanksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/players': {
+      id: '/api/players'
+      path: '/api/players'
+      fullPath: '/api/players'
+      preLoaderRoute: typeof ApiPlayersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/answer-options': {
+      id: '/api/answer-options'
+      path: '/api/answer-options'
+      fullPath: '/api/answer-options'
+      preLoaderRoute: typeof ApiAnswerOptionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/sessions/': {
+      id: '/admin/sessions/'
+      path: '/sessions'
+      fullPath: '/admin/sessions'
+      preLoaderRoute: typeof AdminSessionsIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/banks/': {
+      id: '/admin/banks/'
+      path: '/banks'
+      fullPath: '/admin/banks'
+      preLoaderRoute: typeof AdminBanksIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/api/trpc/$': {
+      id: '/api/trpc/$'
+      path: '/api/trpc/$'
+      fullPath: '/api/trpc/$'
       preLoaderRoute: typeof ApiTrpcSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
-    "/api/auth/$": {
-      id: "/api/auth/$"
-      path: "/api/auth/$"
-      fullPath: "/api/auth/$"
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
-    "/_authenticated/project/$projectId": {
-      id: "/_authenticated/project/$projectId"
-      path: "/project/$projectId"
-      fullPath: "/project/$projectId"
-      preLoaderRoute: typeof AuthenticatedProjectProjectIdRouteImport
-      parentRoute: typeof AuthenticatedRoute
+    '/admin/sessions/new': {
+      id: '/admin/sessions/new'
+      path: '/sessions/new'
+      fullPath: '/admin/sessions/new'
+      preLoaderRoute: typeof AdminSessionsNewRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/sessions/$sessionId': {
+      id: '/admin/sessions/$sessionId'
+      path: '/sessions/$sessionId'
+      fullPath: '/admin/sessions/$sessionId'
+      preLoaderRoute: typeof AdminSessionsSessionIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/banks/$bankId': {
+      id: '/admin/banks/$bankId'
+      path: '/banks/$bankId'
+      fullPath: '/admin/banks/$bankId'
+      preLoaderRoute: typeof AdminBanksBankIdRouteImport
+      parentRoute: typeof AdminRoute
     }
   }
 }
 
-interface AuthenticatedRouteChildren {
-  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
-  AuthenticatedProjectProjectIdRoute: typeof AuthenticatedProjectProjectIdRoute
+interface AdminRouteChildren {
+  AdminIndexRoute: typeof AdminIndexRoute
+  AdminBanksBankIdRoute: typeof AdminBanksBankIdRoute
+  AdminSessionsSessionIdRoute: typeof AdminSessionsSessionIdRoute
+  AdminSessionsNewRoute: typeof AdminSessionsNewRoute
+  AdminBanksIndexRoute: typeof AdminBanksIndexRoute
+  AdminSessionsIndexRoute: typeof AdminSessionsIndexRoute
 }
 
-const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
-  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
-  AuthenticatedProjectProjectIdRoute: AuthenticatedProjectProjectIdRoute,
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminIndexRoute: AdminIndexRoute,
+  AdminBanksBankIdRoute: AdminBanksBankIdRoute,
+  AdminSessionsSessionIdRoute: AdminSessionsSessionIdRoute,
+  AdminSessionsNewRoute: AdminSessionsNewRoute,
+  AdminBanksIndexRoute: AdminBanksIndexRoute,
+  AdminSessionsIndexRoute: AdminSessionsIndexRoute,
 }
 
-const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
-  AuthenticatedRouteChildren
-)
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
-  AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  IndexRoute: IndexRoute,
+  AdminRoute: AdminRouteWithChildren,
   LoginRoute: LoginRoute,
-  ApiProjectsRoute: ApiProjectsRoute,
-  ApiTodosRoute: ApiTodosRoute,
+  ApiAnswerOptionsRoute: ApiAnswerOptionsRoute,
+  ApiPlayersRoute: ApiPlayersRoute,
+  ApiQuestionBanksRoute: ApiQuestionBanksRoute,
+  ApiQuestionsRoute: ApiQuestionsRoute,
+  ApiResponsesRoute: ApiResponsesRoute,
+  ApiSessionsRoute: ApiSessionsRoute,
+  ApiUsedQuestionsRoute: ApiUsedQuestionsRoute,
   ApiUsersRoute: ApiUsersRoute,
+  GameSlugRoute: GameSlugRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiTrpcSplatRoute: ApiTrpcSplatRoute,
 }
@@ -236,9 +467,9 @@ export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
 
-import type { getRouter } from "./router.tsx"
-import type { startInstance } from "./start.tsx"
-declare module "@tanstack/react-start" {
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.tsx'
+declare module '@tanstack/react-start' {
   interface Register {
     ssr: true
     router: Awaited<ReturnType<typeof getRouter>>

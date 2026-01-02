@@ -21,6 +21,18 @@ for (const name of Object.keys(nets)) {
   }
 }
 
+// Admin email whitelist from env
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || ``)
+  .split(`,`)
+  .map((e) => e.trim().toLowerCase())
+  .filter(Boolean)
+
+// Helper to check if user is admin
+export function isAdmin(email: string | null | undefined): boolean {
+  if (!email) return false
+  return ADMIN_EMAILS.includes(email.toLowerCase())
+}
+
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: `pg`,
@@ -28,6 +40,12 @@ export const auth = betterAuth({
     schema,
     // debugLogs: true,
   }),
+  socialProviders: {
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID || ``,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || ``,
+    },
+  },
   emailAndPassword: {
     enabled: true,
     // Disable signup in production, allow in dev
@@ -35,7 +53,7 @@ export const auth = betterAuth({
     minPasswordLength: process.env.NODE_ENV === `production` ? 8 : 1,
   },
   trustedOrigins: [
-    `https://tanstack-start-db-electric-starter.localhost`,
+    `https://buzzin.localhost`,
     `https://${networkIP}`,
     `http://localhost:5173`, // fallback for direct Vite access
   ],

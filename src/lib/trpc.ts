@@ -1,5 +1,5 @@
 import { initTRPC, TRPCError } from "@trpc/server"
-import { auth } from "@/lib/auth"
+import { auth, isAdmin } from "@/lib/auth"
 import { db } from "@/db/connection"
 import { sql } from "drizzle-orm"
 
@@ -14,6 +14,10 @@ export const router = t.router
 export const procedure = t.procedure
 export const middleware = t.middleware
 
+// Public procedure - no auth required
+export const publicProcedure = procedure
+
+// Authenticated user middleware
 export const isAuthed = middleware(async ({ ctx, next }) => {
   if (!ctx.session?.user) {
     throw new TRPCError({ code: `UNAUTHORIZED` })
@@ -27,6 +31,27 @@ export const isAuthed = middleware(async ({ ctx, next }) => {
 })
 
 export const authedProcedure = procedure.use(isAuthed)
+
+// Admin-only middleware - must be authenticated AND have admin email
+export const isAdminMiddleware = middleware(async ({ ctx, next }) => {
+  if (!ctx.session?.user) {
+    throw new TRPCError({ code: `UNAUTHORIZED` })
+  }
+  if (!isAdmin(ctx.session.user.email)) {
+    throw new TRPCError({
+      code: `FORBIDDEN`,
+      message: `Admin access required`,
+    })
+  }
+  return next({
+    ctx: {
+      ...ctx,
+      session: ctx.session,
+    },
+  })
+})
+
+export const adminProcedure = procedure.use(isAdminMiddleware)
 
 // Helper function to generate transaction ID for Electric sync
 export async function generateTxId(
