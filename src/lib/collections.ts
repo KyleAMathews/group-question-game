@@ -1,4 +1,4 @@
-import { createCollection } from "@tanstack/react-db"
+import { createCollection, localStorageCollectionOptions } from "@tanstack/react-db"
 import { electricCollectionOptions } from "@tanstack/electric-db-collection"
 import {
   selectQuestionBankSchema,
@@ -11,11 +11,29 @@ import {
   selectUsersSchema,
 } from "@/db/schema"
 import { trpc } from "@/lib/trpc-client"
+import { z } from "zod"
 
 const baseUrl =
   typeof window !== `undefined`
     ? window.location.origin
     : `http://localhost:5173`
+
+// Schema for player session mapping (stored in localStorage)
+const playerSessionSchema = z.object({
+  sessionId: z.number(),
+  playerId: z.string(),
+})
+
+// Player sessions collection - maps game session IDs to player IDs
+// Persisted to localStorage so players can rejoin after refresh
+export const playerSessionsCollection = createCollection(
+  localStorageCollectionOptions({
+    id: `player-sessions`,
+    storageKey: `buzzin-player-sessions`,
+    schema: playerSessionSchema,
+    getKey: (item) => item.sessionId,
+  })
+)
 
 // Users collection (for admin features)
 export const usersCollection = createCollection(

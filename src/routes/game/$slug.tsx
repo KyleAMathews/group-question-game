@@ -6,6 +6,8 @@ import {
   responsesCollection,
   questionsCollection,
   answerOptionsCollection,
+  usedQuestionsCollection,
+  playerSessionsCollection,
 } from "@/lib/collections"
 
 // Temp ID counter for optimistic response inserts
@@ -72,20 +74,11 @@ export const Route = createFileRoute(`/game/$slug`)({
       responsesCollection.preload(),
       questionsCollection.preload(),
       answerOptionsCollection.preload(),
+      usedQuestionsCollection.preload(),
+      playerSessionsCollection.preload(),
     ])
   },
 })
-
-// Local storage helpers for player ID
-function getPlayerId(sessionId: number): string | null {
-  if (typeof window === `undefined`) return null
-  return localStorage.getItem(`buzzin-player-${sessionId}`)
-}
-
-function setPlayerId(sessionId: number, playerId: string) {
-  if (typeof window === `undefined`) return
-  localStorage.setItem(`buzzin-player-${sessionId}`, playerId)
-}
 
 function PlayerGame() {
   const { slug } = Route.useParams()
@@ -127,6 +120,26 @@ function PlayerGame() {
   )
   const allOptions = optionsData || []
 
+  // Load used questions for history (which questions were asked in this session)
+  const { data: usedQuestionsData } = useLiveQuery((q) =>
+    q.from({ used: usedQuestionsCollection })
+      .where(({ used }) => eq(used.session_id, sessionId))
+  )
+  const usedQuestions = usedQuestionsData || []
+
+  // Get stored player ID from localStorage collection
+  const { data: storedPlayerSessions } = useLiveQuery((q) =>
+    q.from({ ps: playerSessionsCollection })
+      .where(({ ps }) => eq(ps.sessionId, sessionId))
+  )
+  const storedPlayerId = storedPlayerSessions?.[0]?.playerId
+
+  // Find the current player from the players list using stored ID
+  const currentPlayer = useMemo(() => {
+    if (!storedPlayerId) return null
+    return players.find((p) => p.id === storedPlayerId) || null
+  }, [storedPlayerId, players])
+
   // Compute current question with options and round timing
   const currentQuestion: QuestionData | null = useMemo(() => {
     if (!session?.current_question_id) return null
@@ -158,7 +171,46 @@ function PlayerGame() {
     return players.find((p) => p.id === session.winner_player_id) || null
   }, [session?.status, session?.winner_player_id, players])
 
-  const [currentPlayer, setCurrentPlayer] = useState<PlayerData | null>(null)
+  // Build game history for ended state
+  const gameHistory = useMemo(() => {
+    if (session?.status !== `ended`) return []
+
+    // Sort used questions by order they were asked
+    const sortedUsed = [...usedQuestions].sort((a, b) => a.question_order - b.question_order)
+
+    return sortedUsed.map((used) => {
+      const question = allQuestions.find((q) => q.id === used.question_id)
+      if (!question) return null
+
+      const options = allOptions
+        .filter((o) => o.question_id === question.id)
+        .sort((a, b) => a.display_order - b.display_order)
+
+      // Find this player's response
+      const playerResp = responses.find(
+        (r) => r.question_id === question.id
+      )
+
+      return {
+        questionId: question.id,
+        questionText: question.question_text,
+        questionType: question.question_type,
+        explanation: question.explanation,
+        options,
+        playerSelectedIds: (playerResp?.selected_option_ids || []) as number[],
+        pointsEarned: playerResp?.points_earned || 0,
+      }
+    }).filter(Boolean) as Array<{
+      questionId: number
+      questionText: string
+      questionType: string
+      explanation: string | null
+      options: AnswerOptionData[]
+      playerSelectedIds: number[]
+      pointsEarned: number
+    }>
+  }, [session?.status, usedQuestions, allQuestions, allOptions, responses])
+
   const [selectedOptions, setSelectedOptions] = useState<number[]>([])
   const [hasSubmitted, setHasSubmitted] = useState(false)
   const [playerResponse, setPlayerResponse] = useState<{ points_earned: number } | null>(null)
@@ -167,37 +219,20 @@ function PlayerGame() {
   const [displayName, setDisplayName] = useState(``)
   const [isJoining, setIsJoining] = useState(false)
   const [prevQuestionId, setPrevQuestionId] = useState<number | null>(null)
+  const [hasCalledRejoin, setHasCalledRejoin] = useState(false)
 
-  // Check for existing player from Electric data and rejoin if found
+  // Notify server when a returning player is detected (for connected status)
   useEffect(() => {
-    if (!session || players.length === 0) return
+    if (!session || !currentPlayer || hasCalledRejoin) return
 
-    const existingPlayerId = getPlayerId(session.id)
-    if (!existingPlayerId || currentPlayer) return
-
-    // Check if player exists in Electric data
-    const existingPlayer = players.find((p) => p.id === existingPlayerId)
-    if (existingPlayer) {
-      setCurrentPlayer(existingPlayer)
-      // Notify server of rejoin to update connected status
-      trpc.players.rejoin.mutate({
-        playerId: existingPlayerId,
-        sessionId: session.id,
-      }).catch(() => {
-        // Ignore rejoin errors
-      })
-    }
-  }, [session?.id, players, currentPlayer])
-
-  // Update current player from live players data
-  useEffect(() => {
-    if (currentPlayer && players.length > 0) {
-      const updatedPlayer = players.find((p) => p.id === currentPlayer.id)
-      if (updatedPlayer) {
-        setCurrentPlayer(updatedPlayer)
-      }
-    }
-  }, [players, currentPlayer?.id])
+    trpc.players.rejoin.mutate({
+      playerId: currentPlayer.id,
+      sessionId: session.id,
+    }).catch(() => {
+      // Ignore rejoin errors
+    })
+    setHasCalledRejoin(true)
+  }, [session?.id, currentPlayer?.id, hasCalledRejoin])
 
   // Reset state when question changes
   useEffect(() => {
@@ -257,21 +292,18 @@ function PlayerGame() {
     setError(``)
 
     try {
-      const existingPlayerId = getPlayerId(session.id)
       const result = await trpc.players.join.mutate({
         sessionId: session.id,
         displayName,
-        playerId: existingPlayerId || undefined,
+        playerId: storedPlayerId || undefined,
       })
 
-      setPlayerId(session.id, result.player.id)
-      // Set player with parsed dates - Electric will sync proper types soon
-      setCurrentPlayer({
-        ...result.player,
-        joined_at: new Date(result.player.joined_at),
-        last_seen_at: new Date(result.player.last_seen_at),
+      // Save player ID to localStorage collection for rejoin support
+      playerSessionsCollection.insert({
+        sessionId: session.id,
+        playerId: result.player.id,
       })
-      // Players will sync via Electric
+      // Player will sync via Electric and currentPlayer will update automatically
     } catch (err: unknown) {
       const error = err as { message?: string }
       setError(error.message || `Failed to join game`)
@@ -341,7 +373,7 @@ function PlayerGame() {
     )
   }
 
-  // Join screen
+  // Join screen (only for lobby status)
   if (!currentPlayer && session?.status === `lobby`) {
     return (
       <div className="min-h-screen bg-buzzy-gradient flex items-center justify-center p-4">
@@ -618,41 +650,130 @@ function PlayerGame() {
     )
   }
 
-  // Game ended - results
+  // Game ended - results with question history
   if (session?.status === `ended`) {
     const isWinner = winner?.id === currentPlayer?.id
 
     return (
-      <div className="min-h-screen bg-buzzy-gradient flex items-center justify-center p-4">
-        <div className="card-buzzy max-w-md w-full text-center animate-bounce-in">
-          {isWinner ? (
-            <>
-              <div className="relative inline-block mb-4">
-                <Crown className="w-20 h-20 crown-winner animate-wiggle" />
-              </div>
-              <h1 className="text-4xl font-bold text-text-dark mb-2">You Won!</h1>
-            </>
-          ) : (
-            <>
-              <Trophy className="w-20 h-20 text-buzzy-orange mx-auto mb-4" />
-              <h1 className="text-3xl font-bold text-text-dark mb-2">Game Over!</h1>
-            </>
-          )}
+      <div className="min-h-screen bg-buzzy-gradient-soft">
+        {/* Header with results */}
+        <div className="bg-white shadow-md px-4 py-6">
+          <div className="max-w-2xl mx-auto text-center">
+            {isWinner ? (
+              <>
+                <Crown className="w-16 h-16 crown-winner animate-wiggle mx-auto mb-2" />
+                <h1 className="text-3xl font-bold text-text-dark">You Won!</h1>
+              </>
+            ) : (
+              <>
+                <Trophy className="w-16 h-16 text-buzzy-orange mx-auto mb-2" />
+                <h1 className="text-2xl font-bold text-text-dark">Game Over!</h1>
+              </>
+            )}
 
-          {winner && !isWinner && (
-            <div className="mb-6">
-              <p className="text-text-muted">Winner:</p>
-              <p className="text-2xl font-bold text-buzzy-purple">{winner.display_name}</p>
-              <p className="text-text-muted">{winner.score} points</p>
+            {winner && !isWinner && (
+              <p className="text-text-muted mt-2">
+                Winner: <span className="font-semibold text-buzzy-purple">{winner.display_name}</span> ({winner.score} pts)
+              </p>
+            )}
+
+            <div className="mt-4 inline-block px-6 py-3 rounded-xl bg-buzzy-gradient-soft">
+              <p className="text-sm text-text-muted">Your Score</p>
+              <p className="text-3xl font-bold text-text-dark">{currentPlayer?.score || 0}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Question History */}
+        <div className="max-w-2xl mx-auto p-4">
+          <h2 className="text-xl font-bold text-text-dark mb-4">Your Answers</h2>
+
+          <div className="space-y-4">
+            {gameHistory.map((item, idx) => {
+              const gotItRight = item.pointsEarned > 0
+
+              return (
+                <div key={item.questionId} className="card-buzzy">
+                  <div className="flex items-start gap-3 mb-3">
+                    <span className="flex-shrink-0 w-8 h-8 rounded-full bg-buzzy-purple/10 flex items-center justify-center text-sm font-bold text-buzzy-purple">
+                      {idx + 1}
+                    </span>
+                    <div className="flex-1">
+                      <p className="font-semibold text-text-dark">{item.questionText}</p>
+                    </div>
+                    <span
+                      className={`flex-shrink-0 px-2 py-1 rounded-full text-xs font-medium ${
+                        gotItRight
+                          ? `bg-state-correct/10 text-state-correct`
+                          : `bg-state-wrong/10 text-state-wrong`
+                      }`}
+                    >
+                      {gotItRight ? `+${item.pointsEarned}` : item.pointsEarned}
+                    </span>
+                  </div>
+
+                  <div className="space-y-2 ml-11">
+                    {item.options.map((option) => {
+                      const wasSelected = item.playerSelectedIds.includes(option.id)
+                      const isCorrect = option.is_correct
+
+                      let bgClass = `bg-gray-50`
+                      let textClass = `text-text-muted`
+                      let icon = null
+
+                      if (isCorrect) {
+                        bgClass = `bg-state-correct/10`
+                        textClass = `text-state-correct`
+                        icon = <Check className="w-4 h-4" />
+                      } else if (wasSelected && !isCorrect) {
+                        bgClass = `bg-state-wrong/10`
+                        textClass = `text-state-wrong`
+                        icon = <X className="w-4 h-4" />
+                      }
+
+                      return (
+                        <div
+                          key={option.id}
+                          className={`flex items-center gap-2 px-3 py-2 rounded-lg ${bgClass}`}
+                        >
+                          {wasSelected && (
+                            <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                              isCorrect ? `border-state-correct bg-state-correct` : `border-state-wrong bg-state-wrong`
+                            }`}>
+                              <span className="w-2 h-2 rounded-full bg-white" />
+                            </span>
+                          )}
+                          {!wasSelected && isCorrect && (
+                            <span className="w-4 h-4 rounded-full border-2 border-state-correct" />
+                          )}
+                          {!wasSelected && !isCorrect && (
+                            <span className="w-4 h-4" />
+                          )}
+                          <span className={`flex-1 text-sm ${textClass}`}>{option.option_text}</span>
+                          {icon}
+                        </div>
+                      )
+                    })}
+                  </div>
+
+                  {item.explanation && (
+                    <div className="mt-3 ml-11 p-3 rounded-lg bg-buzzy-purple/5 border border-buzzy-purple/10">
+                      <p className="text-xs text-buzzy-purple font-medium mb-1">Did you know?</p>
+                      <p className="text-sm text-text-dark">{item.explanation}</p>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+
+          {gameHistory.length === 0 && (
+            <div className="card-buzzy text-center">
+              <p className="text-text-muted">No questions were answered in this game.</p>
             </div>
           )}
 
-          <div className="p-6 rounded-xl bg-buzzy-gradient-soft mb-6">
-            <p className="text-text-muted mb-1">Your Score</p>
-            <p className="text-5xl font-bold text-text-dark">{currentPlayer?.score || 0}</p>
-          </div>
-
-          <p className="text-text-muted">Thanks for playing!</p>
+          <p className="text-center text-text-muted mt-6 mb-4">Thanks for playing!</p>
         </div>
       </div>
     )
