@@ -62,6 +62,23 @@ interface QuestionData {
   roundDurationSeconds: number
 }
 
+// Seeded random shuffle - same seed produces same order
+function seededShuffle<T>(array: T[], seed: string): T[] {
+  const result = [...array]
+  let hash = 0
+  for (let i = 0; i < seed.length; i++) {
+    hash = ((hash << 5) - hash + seed.charCodeAt(i)) | 0
+  }
+
+  // Fisher-Yates shuffle with seeded random
+  for (let i = result.length - 1; i > 0; i--) {
+    hash = ((hash << 5) - hash + i) | 0
+    const j = Math.abs(hash) % (i + 1)
+    ;[result[i], result[j]] = [result[j], result[i]]
+  }
+  return result
+}
+
 export const Route = createFileRoute(`/game/$slug`)({
   component: PlayerGame,
   ssr: false,
@@ -141,20 +158,30 @@ function PlayerGame() {
   }, [storedPlayerId, players])
 
   // Compute current question with options and round timing
+  // Options are shuffled per-player using a seeded random for fairness
   const currentQuestion: QuestionData | null = useMemo(() => {
     if (!session?.current_question_id) return null
     const question = allQuestions.find((q) => q.id === session.current_question_id)
     if (!question) return null
-    const options = allOptions
+
+    // Sort by display_order first, then shuffle with player-specific seed
+    const sortedOptions = allOptions
       .filter((o) => o.question_id === question.id)
       .sort((a, b) => a.display_order - b.display_order)
+
+    // Seed based on session + question + player ensures:
+    // - Different players see different orders
+    // - Same player sees same order on refresh
+    const shuffleSeed = `${session.id}-${question.id}-${storedPlayerId || `anon`}`
+    const options = seededShuffle(sortedOptions, shuffleSeed)
+
     return {
       ...question,
       options,
       roundStartedAt: session.round_started_at,
       roundDurationSeconds: session.round_duration_seconds,
     }
-  }, [session?.current_question_id, session?.round_started_at, session?.round_duration_seconds, allQuestions, allOptions])
+  }, [session?.current_question_id, session?.id, session?.round_started_at, session?.round_duration_seconds, allQuestions, allOptions, storedPlayerId])
 
   // Compute round stats from responses
   const roundStats = useMemo(() => {
