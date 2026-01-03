@@ -6,14 +6,17 @@ compatibility_date = "2024-12-01"
 compatibility_flags = ["nodejs_compat"]
 
 [vars]
-# Environment variables are set in the Cloudflare dashboard
-# DATABASE_URL = "..."
-# GOOGLE_CLIENT_ID = "..."
-# GOOGLE_CLIENT_SECRET = "..."
-# ADMIN_EMAILS = "..."
-# ANTHROPIC_API_KEY = "..."
-# BETTER_AUTH_SECRET = "..."
-# ELECTRIC_URL = "..."
+# Environment variables are set in the Cloudflare dashboard:
+# DATABASE_URL         - PostgreSQL connection (use Neon for CF compatibility)
+# BETTER_AUTH_SECRET   - Auth secret (min 32 chars)
+# APP_URL              - Production URL(s) for trusted origins
+# GOOGLE_CLIENT_ID     - Google OAuth client ID
+# GOOGLE_CLIENT_SECRET - Google OAuth client secret
+# ADMIN_EMAILS         - Comma-separated admin emails
+# ANTHROPIC_API_KEY    - For AI-generated wrong answers
+# ELECTRIC_URL         - Electric Cloud endpoint
+# ELECTRIC_SOURCE_ID   - Electric Cloud source ID
+# ELECTRIC_SECRET      - Electric Cloud secret
 
 # Build configuration
 [build]
