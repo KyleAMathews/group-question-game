@@ -32,7 +32,7 @@ function canTransition(from: SessionStatus, to: SessionStatus): boolean {
 // Draw a random unused question from the bank
 async function drawRandomQuestion(
   tx: Parameters<
-    Parameters<typeof import("@/db/connection").db.transaction>[0]
+    Parameters<typeof import(`@/db/connection`).db.transaction>[0]
   >[0],
   sessionId: number,
   bankId: number
@@ -77,7 +77,7 @@ async function drawRandomQuestion(
 // Calculate winner based on highest score
 async function calculateWinner(
   tx: Parameters<
-    Parameters<typeof import("@/db/connection").db.transaction>[0]
+    Parameters<typeof import(`@/db/connection`).db.transaction>[0]
   >[0],
   sessionId: number
 ) {
